@@ -15,33 +15,20 @@
     align-items: center;
     min-height: 100vh;
   }
-  h1 {
-    color: #5fdfff;
-    margin-bottom: 5px;
-    font-weight: 400;
-  }
-  .subtitle {
-    color: #888;
-    margin-bottom: 25px;
-    font-size: 14px;
-  }
+  h1 { color: #5fdfff; margin-bottom: 5px; font-weight: 400; }
+  .subtitle { color: #888; margin-bottom: 25px; font-size: 14px; }
   #screen_container {
     background: #000;
     padding: 4px;
     border: 1px solid #333;
-    box-shadow: 0 0 30px rgba(95, 223, 255, 0.15);
   }
   #screen_container > div {
     white-space: pre;
     font: 14px / 16px "Courier New", monospace;
     color: #e5e5e5;
   }
-  #screen_container > canvas {
-    display: none;
-  }
-  .controls {
-    margin: 25px 0 15px;
-  }
+  #screen_container > canvas { display: none; }
+  .controls { margin: 25px 0 15px; }
   button {
     background: #5fdfff;
     color: #000;
@@ -64,7 +51,6 @@
   }
   .info strong { color: #aaa; }
   a { color: #5fdfff; text-decoration: none; }
-  a:hover { text-decoration: underline; }
   #status { color: #888; margin: 10px 0; font-size: 13px; }
 </style>
 </head>
@@ -72,8 +58,7 @@
 
 <h1>MyMisu OS</h1>
 <div class="subtitle">a bare-metal x86 operating system, running in your browser</div>
-
-<div id="status">Loading emulator...</div>
+<div id="status">Loading emulator from copy.sh...</div>
 
 <div id="screen_container">
   <div></div>
@@ -86,53 +71,54 @@
 </div>
 
 <div class="info">
-  <strong>Login:</strong> misu / misu &nbsp;&nbsp;|&nbsp;&nbsp;
+  <strong>Login:</strong> misu / misu &nbsp;|&nbsp;
   <strong>Try:</strong> help, syscall, spawn all, top, dmesg, tree<br>
-  Click inside the screen to capture keyboard. Press ESC to release.<br><br>
-  <a href="https://github.com/Brago475/myMisu_OS">Source code</a> &nbsp;|&nbsp;
+  Click inside the screen to capture keyboard. ESC to release.<br><br>
+  <a href="https://github.com/Brago475/myMisu_OS">Source</a> &nbsp;|&nbsp;
   <a href="https://github.com/Brago475/myMisu_OS/releases">Download ISO</a>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/v86@0.3.1/build/libv86.js"></script>
 <script>
-  let emulator = null;
+  const status = document.getElementById("status");
   const startBtn = document.getElementById("start_btn");
   const resetBtn = document.getElementById("reset_btn");
-  const status = document.getElementById("status");
 
-  // Wait for V86 to load
-  window.addEventListener("load", () => {
-    if (typeof V86 !== "undefined" || typeof V86Starter !== "undefined") {
+  // Dynamically load v86 from copy.sh
+  const script = document.createElement("script");
+  script.src = "https://copy.sh/v86/build/libv86.js";
+  script.onload = () => {
+    if (typeof V86Starter !== "undefined" || typeof V86 !== "undefined") {
       status.textContent = 'Click "Start MyMisu OS" to boot';
       startBtn.disabled = false;
     } else {
-      status.textContent = "Failed to load emulator. Check console.";
+      status.textContent = "Loaded but V86 not found. Try refresh.";
     }
-  });
+  };
+  script.onerror = () => {
+    status.textContent = "Failed to load v86 library (CORS or network).";
+  };
+  document.head.appendChild(script);
 
+  let emulator = null;
   startBtn.addEventListener("click", () => {
     startBtn.disabled = true;
-    status.textContent = "Booting... (5-10 seconds)";
-
-    const Starter = (typeof V86 !== "undefined") ? V86 : V86Starter;
-
+    status.textContent = "Booting...";
+    const Starter = (typeof V86Starter !== "undefined") ? V86Starter : V86;
     emulator = new Starter({
-      wasm_path: "https://cdn.jsdelivr.net/npm/v86@0.3.1/build/v86.wasm",
+      wasm_path: "https://copy.sh/v86/build/v86.wasm",
       memory_size: 128 * 1024 * 1024,
       vga_memory_size: 8 * 1024 * 1024,
       screen_container: document.getElementById("screen_container"),
-      bios: { url: "https://cdn.jsdelivr.net/npm/v86@0.3.1/bios/seabios.bin" },
-      vga_bios: { url: "https://cdn.jsdelivr.net/npm/v86@0.3.1/bios/vgabios.bin" },
+      bios: { url: "https://copy.sh/v86/bios/seabios.bin" },
+      vga_bios: { url: "https://copy.sh/v86/bios/vgabios.bin" },
       cdrom: { url: "mymisu.iso" },
       autostart: true,
     });
-
     emulator.add_listener("emulator-started", () => {
       status.textContent = "Running. Login with misu / misu";
       resetBtn.disabled = false;
     });
   });
-
   resetBtn.addEventListener("click", () => {
     if (emulator) emulator.restart();
     status.textContent = "Restarting...";
