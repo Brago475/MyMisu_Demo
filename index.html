@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -58,7 +59,7 @@
 
 <h1>MyMisu OS</h1>
 <div class="subtitle">a bare-metal x86 operating system, running in your browser</div>
-<div id="status">Loading emulator from copy.sh...</div>
+<div id="status">Click "Start" to boot</div>
 
 <div id="screen_container">
   <div></div>
@@ -66,7 +67,7 @@
 </div>
 
 <div class="controls">
-  <button id="start_btn" disabled>Start MyMisu OS</button>
+  <button id="start_btn">Start MyMisu OS</button>
   <button id="reset_btn" disabled>Restart</button>
 </div>
 
@@ -78,39 +79,24 @@
   <a href="https://github.com/Brago475/myMisu_OS/releases">Download ISO</a>
 </div>
 
+<script src="libv86.js"></script>
 <script>
   const status = document.getElementById("status");
   const startBtn = document.getElementById("start_btn");
   const resetBtn = document.getElementById("reset_btn");
-
-  // Dynamically load v86 from copy.sh
-  const script = document.createElement("script");
-  script.src = "https://copy.sh/v86/build/libv86.js";
-  script.onload = () => {
-    if (typeof V86Starter !== "undefined" || typeof V86 !== "undefined") {
-      status.textContent = 'Click "Start MyMisu OS" to boot';
-      startBtn.disabled = false;
-    } else {
-      status.textContent = "Loaded but V86 not found. Try refresh.";
-    }
-  };
-  script.onerror = () => {
-    status.textContent = "Failed to load v86 library (CORS or network).";
-  };
-  document.head.appendChild(script);
-
   let emulator = null;
+
   startBtn.addEventListener("click", () => {
     startBtn.disabled = true;
-    status.textContent = "Booting...";
+    status.textContent = "Booting... (5-10 seconds)";
     const Starter = (typeof V86Starter !== "undefined") ? V86Starter : V86;
     emulator = new Starter({
-      wasm_path: "https://copy.sh/v86/build/v86.wasm",
+      wasm_path: "v86.wasm",
       memory_size: 128 * 1024 * 1024,
       vga_memory_size: 8 * 1024 * 1024,
       screen_container: document.getElementById("screen_container"),
-      bios: { url: "https://copy.sh/v86/bios/seabios.bin" },
-      vga_bios: { url: "https://copy.sh/v86/bios/vgabios.bin" },
+      bios: { url: "seabios.bin" },
+      vga_bios: { url: "vgabios.bin" },
       cdrom: { url: "mymisu.iso" },
       autostart: true,
     });
@@ -119,6 +105,7 @@
       resetBtn.disabled = false;
     });
   });
+
   resetBtn.addEventListener("click", () => {
     if (emulator) emulator.restart();
     status.textContent = "Restarting...";
