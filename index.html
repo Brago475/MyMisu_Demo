@@ -73,7 +73,7 @@
 <h1>MyMisu OS</h1>
 <div class="subtitle">a bare-metal x86 operating system, running in your browser</div>
 
-<div id="status">Click "Start" to boot the OS</div>
+<div id="status">Loading emulator...</div>
 
 <div id="screen_container">
   <div></div>
@@ -81,7 +81,7 @@
 </div>
 
 <div class="controls">
-  <button id="start_btn">Start MyMisu OS</button>
+  <button id="start_btn" disabled>Start MyMisu OS</button>
   <button id="reset_btn" disabled>Restart</button>
 </div>
 
@@ -93,24 +93,36 @@
   <a href="https://github.com/Brago475/myMisu_OS/releases">Download ISO</a>
 </div>
 
-<script src="https://copy.sh/v86/build/libv86.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/v86@0.3.1/build/libv86.js"></script>
 <script>
   let emulator = null;
   const startBtn = document.getElementById("start_btn");
   const resetBtn = document.getElementById("reset_btn");
   const status = document.getElementById("status");
 
+  // Wait for V86 to load
+  window.addEventListener("load", () => {
+    if (typeof V86 !== "undefined" || typeof V86Starter !== "undefined") {
+      status.textContent = 'Click "Start MyMisu OS" to boot';
+      startBtn.disabled = false;
+    } else {
+      status.textContent = "Failed to load emulator. Check console.";
+    }
+  });
+
   startBtn.addEventListener("click", () => {
     startBtn.disabled = true;
-    status.textContent = "Booting... (this takes 5-10 seconds)";
+    status.textContent = "Booting... (5-10 seconds)";
 
-    emulator = new V86Starter({
-      wasm_path: "https://copy.sh/v86/build/v86.wasm",
+    const Starter = (typeof V86 !== "undefined") ? V86 : V86Starter;
+
+    emulator = new Starter({
+      wasm_path: "https://cdn.jsdelivr.net/npm/v86@0.3.1/build/v86.wasm",
       memory_size: 128 * 1024 * 1024,
       vga_memory_size: 8 * 1024 * 1024,
       screen_container: document.getElementById("screen_container"),
-      bios: { url: "https://copy.sh/v86/bios/seabios.bin" },
-      vga_bios: { url: "https://copy.sh/v86/bios/vgabios.bin" },
+      bios: { url: "https://cdn.jsdelivr.net/npm/v86@0.3.1/bios/seabios.bin" },
+      vga_bios: { url: "https://cdn.jsdelivr.net/npm/v86@0.3.1/bios/vgabios.bin" },
       cdrom: { url: "mymisu.iso" },
       autostart: true,
     });
