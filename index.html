@@ -1,23 +1,46 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>MyMisu OS - Live Demo</title>
 <style>
+  * { box-sizing: border-box; }
   body {
     background: #0a0a0a;
     color: #e5e5e5;
     font-family: 'Courier New', monospace;
     margin: 0;
-    padding: 30px;
+    padding: 20px;
+    min-height: 100vh;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  h1 {
+    color: #5fdfff;
+    margin: 0 0 5px 0;
+    font-weight: 400;
+    font-size: 28px;
+  }
+  .subtitle {
+    color: #888;
+    font-size: 13px;
+  }
+  .layout {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .left {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 100vh;
   }
-  h1 { color: #5fdfff; margin-bottom: 5px; font-weight: 400; }
-  .subtitle { color: #888; margin-bottom: 25px; font-size: 14px; }
   #screen_container {
     background: #000;
     padding: 4px;
@@ -29,7 +52,9 @@
     color: #e5e5e5;
   }
   #screen_container > canvas { display: none; }
-  .controls { margin: 25px 0 15px; }
+  .controls {
+    margin: 15px 0;
+  }
   button {
     background: #5fdfff;
     color: #000;
@@ -42,42 +67,154 @@
   }
   button:hover { background: #8aebff; }
   button:disabled { background: #333; color: #666; cursor: not-allowed; }
-  .info {
-    color: #666;
+  #status {
+    color: #888;
     font-size: 13px;
+    margin: 10px 0;
     text-align: center;
-    max-width: 720px;
-    line-height: 1.6;
-    margin-top: 15px;
   }
-  .info strong { color: #aaa; }
-  a { color: #5fdfff; text-decoration: none; }
-  #status { color: #888; margin: 10px 0; font-size: 13px; }
+
+  /* Side panel */
+  .panel {
+    width: 360px;
+    background: #111;
+    border: 1px solid #222;
+    padding: 20px;
+    color: #ccc;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .panel h2 {
+    color: #5fdfff;
+    font-size: 15px;
+    margin: 0 0 10px 0;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .panel h3 {
+    color: #aaa;
+    font-size: 13px;
+    margin: 18px 0 6px 0;
+    font-weight: 400;
+  }
+  .panel ol, .panel ul {
+    padding-left: 18px;
+    margin: 6px 0;
+  }
+  .panel li { margin: 4px 0; }
+  .panel code {
+    background: #1a1a1a;
+    color: #5fdfff;
+    padding: 1px 6px;
+    border: 1px solid #2a2a2a;
+    border-radius: 2px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+  }
+  .cmd-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+    border-bottom: 1px solid #1a1a1a;
+  }
+  .cmd-row code { background: transparent; border: none; color: #5fdfff; padding: 0; }
+  .cmd-row span { color: #888; font-size: 12px; }
+  .creds {
+    background: #0a1a1a;
+    border-left: 3px solid #5fdfff;
+    padding: 10px 14px;
+    margin: 10px 0;
+  }
+  .creds strong { color: #5fdfff; }
+  footer {
+    text-align: center;
+    margin-top: 30px;
+    color: #555;
+    font-size: 12px;
+  }
+  footer a { color: #888; text-decoration: none; }
+  footer a:hover { color: #5fdfff; }
+  @media (max-width: 900px) {
+    .layout { flex-direction: column; align-items: center; }
+    .panel { width: 100%; max-width: 720px; }
+  }
 </style>
 </head>
 <body>
 
-<h1>MyMisu OS</h1>
-<div class="subtitle">a bare-metal x86 operating system, running in your browser</div>
-<div id="status">Click "Start" to boot</div>
+<header>
+  <h1>MyMisu OS</h1>
+  <div class="subtitle">a bare-metal x86 operating system, running in your browser</div>
+</header>
 
-<div id="screen_container">
-  <div></div>
-  <canvas style="display:none"></canvas>
+<div class="layout">
+
+  <div class="left">
+    <div id="screen_container">
+      <div></div>
+      <canvas style="display:none"></canvas>
+    </div>
+    <div id="status">Click "Start" to boot the OS</div>
+    <div class="controls">
+      <button id="start_btn">Start MyMisu OS</button>
+      <button id="reset_btn" disabled>Restart</button>
+    </div>
+  </div>
+
+  <div class="panel">
+
+    <h2>How to use</h2>
+    <ol>
+      <li>Click <strong>Start MyMisu OS</strong> and wait ~10 seconds</li>
+      <li>Click inside the black screen to capture your keyboard</li>
+      <li>Login with the credentials below</li>
+      <li>Type <code>help</code> to see every command</li>
+    </ol>
+    <p style="color:#666;font-size:12px;">Press ESC outside the screen to release keyboard control.</p>
+
+    <div class="creds">
+      <strong>Login</strong><br>
+      Username: <code>misu</code><br>
+      Password: <code>misu</code>
+    </div>
+
+    <h2>Try these commands</h2>
+
+    <h3>The headline demo</h3>
+    <div class="cmd-row"><code>spawn all</code><span>spawn 3 tasks</span></div>
+    <div class="cmd-row"><code>top</code><span>live process viewer</span></div>
+    <div class="cmd-row"><code>dmesg</code><span>kernel log</span></div>
+
+    <h3>Show off</h3>
+    <div class="cmd-row"><code>syscall</code><span>test all 19 syscalls</span></div>
+    <div class="cmd-row"><code>tree</code><span>filesystem tree</span></div>
+    <div class="cmd-row"><code>ps</code><span>process list</span></div>
+    <div class="cmd-row"><code>meminfo</code><span>memory usage</span></div>
+    <div class="cmd-row"><code>colors</code><span>VGA palette</span></div>
+
+    <h3>Files</h3>
+    <div class="cmd-row"><code>ls</code><span>list files</span></div>
+    <div class="cmd-row"><code>cat readme.txt</code><span>read a file</span></div>
+    <div class="cmd-row"><code>edit notes.txt</code><span>text editor</span></div>
+
+    <h3>Games</h3>
+    <div class="cmd-row"><code>snake</code><span>arrow keys</span></div>
+    <div class="cmd-row"><code>ttt</code><span>tic-tac-toe vs CPU</span></div>
+    <div class="cmd-row"><code>hangman</code><span>word guessing</span></div>
+
+    <h2>What you're seeing</h2>
+    <p style="color:#aaa;">Real bare-metal OS running in JavaScript via <a href="https://github.com/copy/v86" style="color:#5fdfff">v86</a>. No Linux underneath. The kernel was written from scratch in C and x86 assembly. Real preemptive scheduler, real syscalls via <code>int 0x80</code>, real filesystem.</p>
+
+  </div>
 </div>
 
-<div class="controls">
-  <button id="start_btn">Start MyMisu OS</button>
-  <button id="reset_btn" disabled>Restart</button>
-</div>
-
-<div class="info">
-  <strong>Login:</strong> misu / misu &nbsp;|&nbsp;
-  <strong>Try:</strong> help, syscall, spawn all, top, dmesg, tree<br>
-  Click inside the screen to capture keyboard. ESC to release.<br><br>
-  <a href="https://github.com/Brago475/myMisu_OS">Source</a> &nbsp;|&nbsp;
-  <a href="https://github.com/Brago475/myMisu_OS/releases">Download ISO</a>
-</div>
+<footer>
+  <a href="https://github.com/Brago475/myMisu_OS">Source code</a> &nbsp;·&nbsp;
+  <a href="https://github.com/Brago475/myMisu_OS/releases">Download ISO</a> &nbsp;·&nbsp;
+  <a href="https://github.com/Brago475/MyMisu_Demo">Demo source</a><br>
+  <span style="color:#444;">CPS 5520 Spring 2026 · James Mardi, Danny Munoz, Kyle Humlen</span>
+</footer>
 
 <script src="libv86.js"></script>
 <script>
@@ -101,7 +238,7 @@
       autostart: true,
     });
     emulator.add_listener("emulator-started", () => {
-      status.textContent = "Running. Login with misu / misu";
+      status.textContent = "Running. Click the screen, then login with misu / misu";
       resetBtn.disabled = false;
     });
   });
