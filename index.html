@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MyMisu OS - Live Demo</title>
+<style>
+  body {
+    background: #0a0a0a;
+    color: #e5e5e5;
+    font-family: 'Courier New', monospace;
+    margin: 0;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+  h1 {
+    color: #5fdfff;
+    margin-bottom: 5px;
+    font-weight: 400;
+  }
+  .subtitle {
+    color: #888;
+    margin-bottom: 25px;
+    font-size: 14px;
+  }
+  #screen_container {
+    background: #000;
+    padding: 4px;
+    border: 1px solid #333;
+    box-shadow: 0 0 30px rgba(95, 223, 255, 0.15);
+  }
+  #screen_container > div {
+    white-space: pre;
+    font: 14px / 16px "Courier New", monospace;
+    color: #e5e5e5;
+  }
+  #screen_container > canvas {
+    display: none;
+  }
+  .controls {
+    margin: 25px 0 15px;
+  }
+  button {
+    background: #5fdfff;
+    color: #000;
+    border: none;
+    padding: 10px 24px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    cursor: pointer;
+    margin: 0 5px;
+  }
+  button:hover { background: #8aebff; }
+  button:disabled { background: #333; color: #666; cursor: not-allowed; }
+  .info {
+    color: #666;
+    font-size: 13px;
+    text-align: center;
+    max-width: 720px;
+    line-height: 1.6;
+    margin-top: 15px;
+  }
+  .info strong { color: #aaa; }
+  a { color: #5fdfff; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  #status { color: #888; margin: 10px 0; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<h1>MyMisu OS</h1>
+<div class="subtitle">a bare-metal x86 operating system, running in your browser</div>
+
+<div id="status">Click "Start" to boot the OS</div>
+
+<div id="screen_container">
+  <div></div>
+  <canvas style="display:none"></canvas>
+</div>
+
+<div class="controls">
+  <button id="start_btn">Start MyMisu OS</button>
+  <button id="reset_btn" disabled>Restart</button>
+</div>
+
+<div class="info">
+  <strong>Login:</strong> misu / misu &nbsp;&nbsp;|&nbsp;&nbsp;
+  <strong>Try:</strong> help, syscall, spawn all, top, dmesg, tree<br>
+  Click inside the screen to capture keyboard. Press ESC to release.<br><br>
+  <a href="https://github.com/Brago475/myMisu_OS">Source code</a> &nbsp;|&nbsp;
+  <a href="https://github.com/Brago475/myMisu_OS/releases">Download ISO</a>
+</div>
+
+<script src="https://copy.sh/v86/build/libv86.js"></script>
+<script>
+  let emulator = null;
+  const startBtn = document.getElementById("start_btn");
+  const resetBtn = document.getElementById("reset_btn");
+  const status = document.getElementById("status");
+
+  startBtn.addEventListener("click", () => {
+    startBtn.disabled = true;
+    status.textContent = "Booting... (this takes 5-10 seconds)";
+
+    emulator = new V86Starter({
+      wasm_path: "https://copy.sh/v86/build/v86.wasm",
+      memory_size: 128 * 1024 * 1024,
+      vga_memory_size: 8 * 1024 * 1024,
+      screen_container: document.getElementById("screen_container"),
+      bios: { url: "https://copy.sh/v86/bios/seabios.bin" },
+      vga_bios: { url: "https://copy.sh/v86/bios/vgabios.bin" },
+      cdrom: { url: "mymisu.iso" },
+      autostart: true,
+    });
+
+    emulator.add_listener("emulator-started", () => {
+      status.textContent = "Running. Login with misu / misu";
+      resetBtn.disabled = false;
+    });
+  });
+
+  resetBtn.addEventListener("click", () => {
+    if (emulator) emulator.restart();
+    status.textContent = "Restarting...";
+  });
+</script>
+
+</body>
+</html>
